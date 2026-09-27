@@ -44,6 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-09-27 | [CMP 170HX 2 枚で Qwen3.8 Flash Next（W4A16・MoE）を vLLM TP=2 で 258k コンテキストまで計測](report/2026-09-27_153558_measuring_qwen3.8_flash_next_w4a16_on_2x_cmp_170hx_with_vllm_tp2.md) | moriyasujapan | GIGABYTE MZ32-AR0-00 | NVIDIA CMP 170HX × 2 | Qwen3.8 Flash Next heretic2 W4A16（vLLM TP=2） |
 | 2026-09-26 | [Tesla T4 4 枚で Qwen3.8 27B の split-mode と量子化を比較](report/2026-09-26_084514_comparing_split_modes_and_quantizations_of_qwen3.8_27b_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Qwen3.8 27B UD-Q4_K_XL / UD-Q6_K / Q8_0 |
 | 2026-09-26 | [RTX 5070 12GB 1枚で Qwen3.8 27B GSQ IQ2_S を計測（8K短縮プロファイル）](report/2026-09-26_094401_profiling_qwen3.8_27b_gsq_iq2_s_on_rtx5070_12gb.md) | fumimatsu | GIGABYTE X870M AORUS ELITE WIFI7 ICE | RTX 5070 × 1 | Qwen3.8 27B GSQ-RCO IQ2_S |
 | 2026-09-25 | [DGX互換機 Lenovo Thinkstation PGX 1台で Qwen3.8 Flash Next（MoE）を 262k コンテキストまで計測](report/2026-09-25_171942_qwen3_8_flash_next_single_gpu_on_nvidia_gb10.md) | 0rangaxx | Lenovo 30KLS01900 | NVIDIA GB10（統合メモリ）× 1 | Qwen3.8 Flash Next IQ3E-Q8D-MTP |
