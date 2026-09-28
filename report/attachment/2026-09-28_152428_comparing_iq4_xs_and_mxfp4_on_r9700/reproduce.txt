@@ -59,3 +59,12 @@ PPTを台形積分し、sample間隔が3秒超の場合はそのgapを集計し�
 llamaはserver timings。vLLM prefillはfirst scheduled→first new token、decodeはfirst→last new token。
 API TTFT/E2Eは別指標。KV再利用の粒度も異なるため、同じ内部演算を測った値とは扱わない。
 KLD/top1と省メモリ設定探索は今回の測定範囲に含めない。
+
+## GGZ14の反復別の図
+
+添付のggz14_run_artifacts.py.txtを.pyへリネームし、Matplotlibのある環境で次を実行する。
+日本語図にはNoto Sans CJK JPを使う。raw生成内容がなくてもresults-api.jsonだけで図を再生成できる。
+
+python3 ggz14_run_artifacts.py --attachment /path/to/this-attachment
+
+run-info.jsonは各反復の項目数・元JSONのhash・共通の実行設定への参照を記録する。

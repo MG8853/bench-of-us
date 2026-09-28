@@ -203,6 +203,20 @@ collectorの単位/欠損処理、SSE grouped token数/metric差分、区間ener
 
 ## 添付と再現
 
+両engineとも各反復でラダー4点・新規prefill 3点・実用prompt 3本（計10要求）を測り、3反復している。
+llamaは3種類のresults JSONに分かれ、GGZ14はresults-api.jsonのkind（ladder / pp0 / real）で1ファイルにまとまっている。
+明示的なwarmupは各反復2本の別JSON。GGZ14の起動設定・環境変数は共通のggz14-run-info.jsonを参照する。
+
+| 反復 | llama.cppの図 | GGZ14の図 | GGZ14の測定条件 |
+|---|---|---|---|
+| 1 | [日本語](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/llama-r1/split-bench-ja.png) / [English](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/llama-r1/split-bench-en.png) | [日本語](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r1/profile-ja.png) / [English](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r1/profile-en.png) | [run-info.json](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r1/run-info.json) |
+| 2 | [日本語](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/llama-r2/split-bench-ja.png) / [English](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/llama-r2/split-bench-en.png) | [日本語](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r2/profile-ja.png) / [English](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r2/profile-en.png) | [run-info.json](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r2/run-info.json) |
+| 3 | [日本語](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/llama-r3/split-bench-ja.png) / [English](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/llama-r3/split-bench-en.png) | [日本語](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r3/profile-ja.png) / [English](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r3/profile-en.png) | [run-info.json](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-r3/run-info.json) |
+
+GGZ14の各図は既存JSONから再描画したもので、llama.cppと異なる内部タイマーを使う点を図にも明記した。
+output-fingerprints.jsonは保存済みSSEから算出した出力token列・textのhashで、生の生成内容は含まない。
+
+
 - [集計JSON](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/summary.json) / [CSV形式テキスト](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/summary-table.txt)
 - [測定identity](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/measurement-identity.json)
 - [GGZ14設定・runtime](attachment/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700/ggz14-run-info.json)
