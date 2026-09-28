@@ -36,7 +36,8 @@
     "triton": "3.6.0",
     "transformers": "5.16.1",
     "flashinfer-python": "0.6.18",
-    "freetoken": "0.1.2"
+    "freetoken": "0.1.2",
+    "tokenizers": "0.23.1"
   },
   "timing_definition": "scheduler admission to synchronized first publication; subsequent published tokens divided by first-to-last interval",
   "prefix_flush": "benchmark-only idle ownership reset, physical pools/graphs and expert/PLE cache preserved",
@@ -69,7 +70,8 @@
     "resident_attention": "FP8 W8A16",
     "resident_shared_expert": "FP8 W8A16",
     "lm_head": "FP8 W8A16",
-    "ple_table": "FP8 host mmap, approximately 47.684 GiB"
+    "ple_table": "FP8 host mmap, approximately 47.684 GiB",
+    "mamba_slots_derivation": "hybrid_radix: 4*8 + max(int(0*8), max(0,1-2)*8) = 32 usable slots; 33 physical slots including one padding sink"
   },
   "freetoken_environment": {
     "FREETOKEN_MOE_LAYER_LRU_SLOTS": "80",
@@ -104,5 +106,13 @@
     "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
     "tokenizer_config.json": "66e427c470fe580fe8c7b5725d857af23d8417e37fae62667ec698306a19987b",
     "generation_config.json": "a38679b4e2684094a224758f6953ec2cb9d816ec27eb41d595feaf1d38a6fff5"
+  },
+  "package_version_provenance": {
+    "tokenizers": {
+      "verified_on": "2026-09-29",
+      "source": "importlib.metadata in the original measurement virtual environment",
+      "metadata_mtime_utc": "2026-08-30T08:33:23Z",
+      "note": "Retrospectively recorded; package metadata predates the 2026-09-28 measurement."
+    }
   }
 }

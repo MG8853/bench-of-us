@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import ast
 import hashlib
+import importlib.metadata
 import json
 import os
 import statistics
@@ -23,6 +24,8 @@ MODEL = "orcarouter/Qwen3.8-Flash-Next-Uncensored-NVFP4"
 TAIL = ("\n\nContinue the sequence with the next 100 numbered lines, in exactly "
         "the same style. Do not stop and do not summarize.")
 STAGES = [0, 32000, 64000, 128000, 196000, 258000]
+RUN_INSTANCE_ID = None
+EXPECTED_MAMBA_SLOTS = None
 
 
 def json_call(path, data=None, timeout=300):
@@ -53,6 +56,49 @@ def ready():
     raise RuntimeError("benchmark server did not become ready")
 
 
+def check_instance(document):
+    actual = document.get("instance_id")
+    if RUN_INSTANCE_ID is None or actual != RUN_INSTANCE_ID:
+        raise RuntimeError(
+            f"backend instance changed: expected {RUN_INSTANCE_ID!r}, got {actual!r}; "
+            "discard this incomplete run and restart with fresh timing/output files")
+    return document
+
+
+def run_health():
+    health = check_instance(json_call("/health"))
+    if health.get("maintenance") != "serving":
+        raise RuntimeError("benchmark backend is not serving")
+    return health
+
+
+def run_stats():
+    stats = check_instance(json_call("/v1/stats"))
+    slots = (stats.get("mamba") or {}).get("total_slots")
+    if EXPECTED_MAMBA_SLOTS is None or slots != EXPECTED_MAMBA_SLOTS:
+        raise RuntimeError(
+            f"Mamba pool mismatch: expected {EXPECTED_MAMBA_SLOTS} usable slots, got {slots}")
+    return stats
+
+
+def start_run():
+    global RUN_INSTANCE_ID, EXPECTED_MAMBA_SLOTS
+    meta = json.loads((ROOT / "run-info.json").read_text())
+    expected_version = meta["packages"]["tokenizers"]
+    actual_version = importlib.metadata.version("tokenizers")
+    if actual_version != expected_version:
+        raise RuntimeError(
+            f"tokenizers version mismatch: expected {expected_version}, got {actual_version}")
+    initial = ready()
+    instance_id = initial.get("instance_id")
+    if not isinstance(instance_id, str) or not instance_id:
+        raise RuntimeError("backend did not return a nonempty instance_id")
+    RUN_INSTANCE_ID = instance_id
+    EXPECTED_MAMBA_SLOTS = meta["runtime_settings"]["mamba_slots"]
+    run_stats()
+    run_health()
+
+
 def gpu():
     fields = "name,memory.used,utilization.gpu,temperature.gpu,clocks.sm,power.draw"
     text = subprocess.check_output(["nvidia-smi", "--query-gpu=" + fields,
@@ -63,13 +109,14 @@ def gpu():
 def reset_prefix(label):
     # Benchmark-only same-size rebuild shortcut: discard prefix ownership while
     # preserving Expert cache, physical pools, CUDA graphs and the PLE mmap.
-    before = json_call("/health")
+    run_health()
+    run_stats()
     t0 = time.monotonic()
     result = json_call("/v1/cache/rebuild", {"num_pages": 10000, "mode": "if_idle",
                                             "timeout": 180}, timeout=240)
     assert result["status"] == "ok", result
-    after = json_call("/health")
-    assert before["instance_id"] == after["instance_id"]
+    run_health()
+    run_stats()
     with (ROOT / "resets.jsonl").open("a") as f:
         f.write(json.dumps({"label": label, "elapsed_s": time.monotonic() - t0,
                             "result": result}) + "\n")
@@ -77,9 +124,8 @@ def reset_prefix(label):
 
 def request(label, prompt, n_predict, temperature=0.0, top_p=1.0,
             ignore_eos=True, fresh=False):
-    health = json_call("/health")
-    assert health["maintenance"] == "serving", health
-    stats = json_call("/v1/stats")
+    health = run_health()
+    stats = run_stats()
     assert stats["requests"]["active"] == 0, stats["requests"]
     before_gpu = gpu()
     payload = {"model": MODEL, "prompt": prompt, "max_tokens": n_predict,
@@ -113,8 +159,8 @@ def request(label, prompt, n_predict, temperature=0.0, top_p=1.0,
                 finish = choice.get("finish_reason") or finish
     elapsed = time.perf_counter() - start
     assert done and usage and first is not None, (done, usage, first)
-    after = json_call("/health")
-    assert health["instance_id"] == after["instance_id"], "backend changed"
+    run_health()
+    run_stats()
     all_timing = [json.loads(x) for x in (ROOT / "backend-timings.jsonl").read_text().splitlines()]
     matching = [x for x in all_timing if x["uid"] == uid]
     assert len(matching) == 1, (uid, len(matching))
@@ -195,7 +241,7 @@ def main():
     ap.add_argument("mode", choices=["smoke", "full"])
     ap.add_argument("--repeats", type=int, default=3)
     args = ap.parse_args()
-    ready()
+    start_run()
     if args.mode == "smoke":
         rows = [request("smoke-greeting", "Please answer with the word OK.", 16)]
         rows.append(request("smoke-2k", filler(2048*4)+TAIL, 64))
