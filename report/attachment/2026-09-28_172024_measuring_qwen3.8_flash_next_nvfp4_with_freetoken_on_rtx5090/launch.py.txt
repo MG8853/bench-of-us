@@ -1,0 +1,27 @@
+"""Portable launcher for the exact measured runtime configuration."""
+import json
+import os
+import sys
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+meta = json.loads((root / "run-info.json").read_text())
+source = Path(os.environ["FREETOKEN_SOURCE"]).resolve()
+model = Path(os.environ["MODEL_DIR"]).resolve()
+ple = Path(os.environ["PLE_TABLE"]).resolve()
+assert source.joinpath("python/freetoken/benchmark_timing.py").is_file(), "Apply the instrumentation patch first"
+assert model.joinpath("tokenizer.json").is_file() and ple.is_file()
+env = {k:v for k,v in os.environ.items() if not k.startswith("FREETOKEN_")}
+env.update(meta["freetoken_environment"])
+env.update(FREETOKEN_PLE_TABLE_FILE=str(ple), FREETOKEN_BENCH_TIMING_FILE=str(root / "backend-timings.jsonl"),
+           PYTHONDONTWRITEBYTECODE="1", TVM_FFI_CUDA_ARCH_LIST="12.0")
+env["PYTHONPATH"] = str(source / "python") + (":" + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+args = [sys.executable, "-m", "freetoken.cli", "serve", "--model-path", str(model),
+        "--served-model-name", meta["model"], "--expert-load", "serial", "--nvfp4-backend", "triton",
+        "--moe-cache-size", "4816", "--num-pages", "10000", "--max-running-requests", "8",
+        "--linear-state-cache-ratio", "0", "--max-prefill-length", "4096", "--max-seq-len-override", "262144",
+        "--memory-ratio", "0.9", "--host", "127.0.0.1", "--port", "8082", "--enable-cache-report",
+        "--decode-log-interval", "50", "--moe-backend", "offload", "--moe-cache-policy", "lru",
+        "--qsa-kv-quant", "k5v6-g32", "--mtp-speculative-tokens", "1", "--mtp-moe-quant", "nvfp4",
+        "--mtp-moe-cache-size", "80"]
+os.execvpe(sys.executable, args, env)

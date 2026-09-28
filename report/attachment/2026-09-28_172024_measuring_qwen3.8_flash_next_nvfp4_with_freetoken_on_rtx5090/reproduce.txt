@@ -1,0 +1,23 @@
+# Reproducing this measurement
+
+The report and raw numeric results accompany this FreeToken measurement.
+
+Use the FreeToken fork at commit `a72b8e3979021888ee3f0a429a816e572c660605`, with its supported CUDA/PyTorch environment and compiled native extensions. Apply `source-instrumentation.patch.txt` in a separate checkout. The original run reused native extensions identified in `native-extensions.json`.
+
+The model must be the same converted OrcaRouter Qwen3.8-Flash-Next Uncensored NVFP4 artifact, with resident FP8 attention/shared-expert/LM-head weights, its MTP NVFP4 artifact, and the FP8 PLE table. Metadata hashes are in `run-info.json`. Model weights are not included. The served model name alone is insufficient to recreate the converted artifacts.
+
+Use a fresh working directory for another run, preserving these submitted results. Copy these attachments there and remove the final .txt suffix from bench.py.txt, launch.py.txt and monitor.py.txt. Other .txt attachments can retain their names. Do not overwrite the recorded results in this repository. Set `MODEL_DIR`, `PLE_TABLE`, and `FREETOKEN_SOURCE` to your model directory, PLE binary, and patched checkout respectively. Activate a compatible FreeToken Python environment with CUDA and required native libraries. The original environment was NixOS; its absolute library paths are deliberately not embedded in this portable copy.
+
+Place a checkout of `kuraneko1/llama-split-bench` at commit `7af72d4085aa5073677d41389144112dd94fcb74` in `reference-llama-split-bench/` next to the adapter. Only its literal real-prompt constants are parsed; its executable benchmark code is not invoked.
+
+1. Start the isolated backend with `python launch.py`. It binds `127.0.0.1:8082` and restores the measured FreeToken runtime flags from `run-info.json`.
+2. Wait until `/health` reports `maintenance: serving`. Keep other clients off this server.
+3. Run `python bench.py smoke`, then `python bench.py full --repeats 3` from the same attachment directory. Use a fresh timing file for each backend instance; request IDs restart with the server.
+4. To sample resources, run `python monitor.py` in another terminal during the full run, and stop it after completion. It creates `resources.jsonl` and will not overwrite an existing file.
+5. Successful completion writes `complete.json`. Retain all repetitions and inspect `protocol.txt` before comparing rates with other engines.
+
+The portable `bench.py` differs from the measured local adapter only in reading the tokenizer location from `MODEL_DIR` and optionally reading `BENCH_BASE_URL`. `launch.py` reproduces the measured settings while allowing machine-specific prerequisite libraries and artifact paths to be supplied externally. The hashes under `artifact_sha256` in `run-info.json` identify the original local files; `SHA256SUMS.json` identifies these portable attachments.
+
+Generated responses and server logs are local diagnostic output. They are not part of this attachment. `results.csv.txt` retains the actual 11-token depth-0 prefill measurement; the chart substitutes the separately measured fresh ~2K prefill value at x=0, as stated in its caption. Real-prompt rates were measured only at their short input lengths, without extrapolation to long contexts.
+
+The .txt suffix on scripts, the patch and the CSV is a transport convention for the report website, whose asset allowlist accepts .png/.json/.txt. The scripts and patch are unchanged from the portable measurement attachment; the CSV retains the same fields and values with line endings normalized to LF. The report filenames and report-local links are separate from the measured script hashes in run-info.json.
