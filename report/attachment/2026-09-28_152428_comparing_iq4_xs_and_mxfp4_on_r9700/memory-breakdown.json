@@ -11,5 +11,12 @@
   "max_model_len": 40960,
   "max_num_seqs": 3,
   "observed_vram_peak_gib": 29.42,
-  "note": "different measurement times/scopes; overlapping categories must not be summed as an exact allocation ledger"
+  "note": "different measurement times/scopes; overlapping categories must not be summed as an exact allocation ledger",
+  "bf16_embedding_gib": 2.3681640625,
+  "bf16_lm_head_gib": 2.3681640625,
+  "bf16_embedding_and_head_shape": [
+    248320,
+    5120
+  ],
+  "bf16_payload_source": "current target-mtpfp8 safetensors header"
 }

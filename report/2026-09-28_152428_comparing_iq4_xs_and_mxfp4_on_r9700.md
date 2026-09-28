@@ -179,6 +179,8 @@ energyはPPTを時間積分した推定値。llamaの要求区間はstdout時刻
 
 これらは計測時点や集計範囲が異なるため、足して29.42GiBを厳密に再現する内訳ではない。
 別途、target artifact自体も18.04GiBでIQ4_XSの13.27GiBより大きく、DFlash2 draftも追加される。
+対象MXFP4 artifactのembeddingとlm_headはどちらもBF16（各248320×5120）で、各約2.37GiB、合計約4.74GiBある。
+「MXFP4」という名前でも全tensorが4bitではない。
 hybrid attention/GDNのpage整列・padding、補助head、workspace、allocator予約も影響する。
 ログのmodel-loading増分はdraftも含むため、そこへdraft容量を再加算しない。
 
