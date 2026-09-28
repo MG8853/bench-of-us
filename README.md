@@ -44,6 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-09-28 | [Radeon AI PRO R9700でQwen3.8 27BのIQ4_XSとMXFP4を比較](report/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700.md) | jyohukuchan | ASRock WRX80 Creator | Radeon AI PRO R9700 × 1 | Qwen3.8 27B UD-IQ4_XS / Quark AWQ MXFP4（各3回） |
 | 2026-09-28 | [RX 7900 XT + RX 7800 XTでQwen3.8 27B IQ4 XSのsplit-modeを比較](report/2026-09-28_040646_qwen3_8_27b_iq4xs_128k_benchmark_on_rx7900xt_and_rx7800xt.md) | ogawara | ASUS ProArt X870E-CREATOR WIFI | RX 7900 XT + RX 7800 XT | Qwen3.8 27B UD-IQ4_XS（128K、各構成3回） |
 | 2026-09-27 | [RTX 3090 4 枚で Qwen3.8 27B の split-mode を比較（Windows・コア1395 MHz固定設定）](report/2026-09-27_130914_comparing_qwen3.8_27b_split_modes_on_4x_rtx3090_at_1395mhz_on_windows.md) | 錦幸佳 | ASUS ROG CROSSHAIR VIII DARK HERO | RTX 3090 × 4 | Qwen3.8 27B UD-Q4_K_XL |
 | 2026-09-27 | [GTX 1660 SUPER 6GBで Qwen2.5-Coder 7B のGPU/CPUオフロードを計測](report/2026-09-27_124604_measuring_gpu_cpu_offload_of_qwen2_5_coder_7b_on_gtx1660super_6gb.md) | antarashi | ASRock B450 Pro4 | GTX 1660 SUPER × 1 | Qwen2.5-Coder 7B Q4_K_M |
