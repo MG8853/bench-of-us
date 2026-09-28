@@ -211,13 +211,15 @@ def run_ladder(srv, args, outdir, guard_idx):
         before = gpu_state(guard_idx)
         t0 = time.time()
         try:
-            r = srv.complete(prompt, args.n_predict, temperature=0.0, ignore_eos=True)
+            r = srv.complete(prompt, args.n_predict, temperature=0.0, ignore_eos=True,
+                             cache_salt=args.cache_salt or None)
         except urllib.error.HTTPError as e:
             body = e.read()[:300].decode(errors="replace")
             print(f"stage {target}: HTTP {e.code} ({body}) - retrying at 96% fill", flush=True)
             try:
                 prompt, want, ratio = sized_prompt(srv, int(target * 0.96), ratio, pcache)
-                r = srv.complete(prompt, args.n_predict, temperature=0.0, ignore_eos=True)
+                r = srv.complete(prompt, args.n_predict, temperature=0.0, ignore_eos=True,
+                                 cache_salt=args.cache_salt or None)
             except Exception as e2:
                 records.append({"aborted": f"stage {target}: {e2}"})
                 json.dump(records, open(results_path, "w"), indent=2)
@@ -364,8 +366,15 @@ def main():
     ap.add_argument("--machine", default="")
     ap.add_argument("--runs-dir", default="runs")
     ap.add_argument("--no-real", action="store_true")
+    # The ladder deliberately reuses each stage's prefix in the next one, so the
+    # salt is constant within a run -- it only isolates one run from the next,
+    # which is what makes a repeat a cold measurement instead of a cache hit.
+    ap.add_argument("--cache-salt", default="",
+                    help='vLLM cache_salt for the ladder; "auto" generates a per-run one')
     args = ap.parse_args()
 
+    if args.cache_salt == "auto":
+        args.cache_salt = "vsb-ladder-%d-%d" % (int(time.time()), random.randrange(10 ** 6))
     outdir = os.path.join(args.runs_dir, args.tag)
     if os.path.exists(os.path.join(outdir, f"results-{args.mode}.json")):
         print(f"BENCH-ABORT: {outdir}/results-{args.mode}.json already exists - use a new tag")

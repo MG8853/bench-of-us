@@ -36,5 +36,8 @@ for target in [0, 32000, 128000, 258000]:
            "draft_accept_rate": round(acc/dn, 3) if dn else None,
            "temperature": 0.7, "top_p": 0.9, "wall_s": round(r["total"], 1)}
     out.append(rec); print(json.dumps(rec, ensure_ascii=False), flush=True)
-json.dump(out, open("runs/tp2-170hx-262k/results-real-depth.json", "w"), indent=2, ensure_ascii=False)
-print("wrote results-real-depth.json")
+# Output path comes from argv so a re-measurement writes next to its own run
+# instead of overwriting the tag this script was first written for.
+dest = sys.argv[1] if len(sys.argv) > 1 else "runs/tp2-170hx-262k/results-real-depth.json"
+json.dump(out, open(dest, "w"), indent=2, ensure_ascii=False)
+print(f"wrote {dest}")
