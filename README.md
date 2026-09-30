@@ -44,6 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-09-30 | [Tesla T4 4 枚で Ornith 1.5 35B A3B の split-mode を比較](report/2026-09-30_105157_comparing_split_modes_of_ornith_1.5_35b_a3b_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Ornith 1.5 35B A3B Q4_K_M + MTP |
 | 2026-09-28 | [RTX 5060 TiでGemma 4 26B A4B QAT-MTPを131Kコンテキストまで計測](report/2026-09-28_210656_profiling_gemma4_26b_a4b_qat_mtp_on_rtx5060ti.md) | RockinWool | ASRock B650 PG Lightning | RTX 5060 Ti + RTX 5070 | Gemma4 26B A4B QAT Q4_K_M + MTP（131K、単一GPU） |
 | 2026-09-28 | [RX 7900 XT + RX 7800 XTでQwen3.8 27B IQ4 XSのsplit-modeを比較](report/2026-09-28_040646_qwen3_8_27b_iq4xs_128k_benchmark_on_rx7900xt_and_rx7800xt.md) | ogawara | ASUS ProArt X870E-CREATOR WIFI | RX 7900 XT + RX 7800 XT | Qwen3.8 27B UD-IQ4_XS（128K、各構成3回） |
 | 2026-09-27 | [RTX 3090 4 枚で Qwen3.8 27B の split-mode を比較（Windows・コア1395 MHz固定設定）](report/2026-09-27_130914_comparing_qwen3.8_27b_split_modes_on_4x_rtx3090_at_1395mhz_on_windows.md) | 錦幸佳 | ASUS ROG CROSSHAIR VIII DARK HERO | RTX 3090 × 4 | Qwen3.8 27B UD-Q4_K_XL |
