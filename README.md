@@ -44,6 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-09-28 | [RTX 5090 1 枚で Qwen3.8-Flash-Next NVFP4 を FreeToken で約 260k 入力まで計測](report/2026-09-28_172024_measuring_qwen3.8_flash_next_nvfp4_with_freetoken_on_rtx5090.md) | centra | ASRock Z890 Pro RS WiFi | RTX 5090 × 1 | Qwen3.8-Flash-Next Uncensored NVFP4（FreeToken、各条件 3 回） |
 | 2026-09-28 | [Radeon AI PRO R9700でQwen3.8 27BのIQ4_XSとMXFP4を比較](report/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700.md) | jyohukuchan | ASRock WRX80 Creator | Radeon AI PRO R9700 × 1 | Qwen3.8 27B UD-IQ4_XS / Quark AWQ MXFP4（各3回） |
 | 2026-09-28 | [RTX 5060 TiでGemma 4 26B A4B QAT-MTPを131Kコンテキストまで計測](report/2026-09-28_210656_profiling_gemma4_26b_a4b_qat_mtp_on_rtx5060ti.md) | RockinWool | ASRock B650 PG Lightning | RTX 5060 Ti + RTX 5070 | Gemma4 26B A4B QAT Q4_K_M + MTP（131K、単一GPU） |
 | 2026-09-28 | [RX 7900 XT + RX 7800 XTでQwen3.8 27B IQ4 XSのsplit-modeを比較](report/2026-09-28_040646_qwen3_8_27b_iq4xs_128k_benchmark_on_rx7900xt_and_rx7800xt.md) | ogawara | ASUS ProArt X870E-CREATOR WIFI | RX 7900 XT + RX 7800 XT | Qwen3.8 27B UD-IQ4_XS（128K、各構成3回） |
