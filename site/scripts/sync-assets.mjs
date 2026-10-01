@@ -13,7 +13,8 @@ const dest = path.join(siteRoot, 'public', 'report-assets');
 // いずれも静的テキストで、サイトからは report-assets/ としてそのまま配信される。
 // py も許可する: 計測・集計に使った補助スクリプトを再現手順の証跡として添付できるようにする。
 // サイトのビルドでは実行も import もせず、テキストとしてコピーするだけ。
-const allowedExtensions = new Set(['.png', '.json', '.txt', '.csv', '.diff', '.py']);
+// patch も許可する: git format-patch 形式のパッチを diff と同様に証跡として添付できるようにする。
+const allowedExtensions = new Set(['.png', '.json', '.txt', '.csv', '.diff', '.py', '.patch']);
 
 async function exists(p) {
   try {
