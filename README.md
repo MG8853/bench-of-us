@@ -44,6 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-09-29 | [TITAN V 2枚でSwift版Qwen3.8 27B IQ4_XSを160Kコンテキストまで測定](report/2026-09-29_155502_benchmarking_swift_qwen3_8_27b_iq4_xs_up_to_160k_context_on_2x_titan_v.md) | tomo_9180 | MSI MPG Z490M GAMING EDGE WIFI | TITAN V × 2 | Swift-Qwen3.8-27B IQ4_XS（128K比較、160K容量確認） |
 | 2026-09-29 | [TITAN V 2枚でQwen3.8 27B IQ4_XSのsplit-modeを64Kまで比較](report/2026-09-29_141725_comparing_qwen3_8_27b_iq4_xs_split_modes_on_2x_titan_v_at_64k_context.md) | tomo_9180 | MSI MPG Z490M GAMING EDGE WIFI | TITAN V × 2 | Qwen3.8 27B UD-IQ4_XS（64K、layer/tensor） |
 | 2026-09-28 | [RTX 5090 1 枚で Qwen3.8-Flash-Next NVFP4 を FreeToken で約 260k 入力まで計測](report/2026-09-28_172024_measuring_qwen3.8_flash_next_nvfp4_with_freetoken_on_rtx5090.md) | centra | ASRock Z890 Pro RS WiFi | RTX 5090 × 1 | Qwen3.8-Flash-Next Uncensored NVFP4（FreeToken、各条件 3 回） |
 | 2026-09-28 | [Radeon AI PRO R9700でQwen3.8 27BのIQ4_XSとMXFP4を比較](report/2026-09-28_152428_comparing_iq4_xs_and_mxfp4_on_r9700.md) | jyohukuchan | ASRock WRX80 Creator | Radeon AI PRO R9700 × 1 | Qwen3.8 27B UD-IQ4_XS / Quark AWQ MXFP4（各3回） |
