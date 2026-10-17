@@ -44,6 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-10-18 | [Tesla T4 4 枚で GLM-5.3-Flash の Maya-S24 / Maya-M / UD-IQ3_XXS を比較](report/2026-10-18_070335_comparing_maya_s24_maya_m_and_ud_iq3_xxs_of_glm_5.3_flash_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | GLM-5.3-Flash Maya-S24 / Maya-M / UD-IQ3_XXS（32k、256k） |
 | 2026-10-18 | [Tesla T4 4 枚で GLM-5.3-Flash UD-IQ3_XXS を ProjectMaya で 1M コンテキストまで検証](report/2026-10-18_061111_validating_glm_5.3_flash_ud_iq3_xxs_up_to_1m_context_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | GLM-5.3-Flash UD-IQ3_XXS（ProjectMaya、32k〜1M、ニードル検証） |
 | 2026-10-18 | [Tesla T4 4 枚で GLM-5.3-Flash UD-IQ3_XXS を llama.cpp（全エキスパート CPU）と ProjectMaya で比較](report/2026-10-18_011545_comparing_llamacpp_cpu_expert_offload_and_project_maya_on_glm_5.3_flash_ud_iq3_xxs.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | GLM-5.3-Flash UD-IQ3_XXS（llama.cpp -cmoe / ProjectMaya、16k/32k） |
 | 2026-10-18 | [Tesla T4 4 枚で GLM-4.7-Flash Q6_K を 128k コンテキストまで計測](report/2026-10-18_005555_profiling_glm_4.7_flash_q6_k_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | GLM-4.7-Flash Q6_K（128k） |
