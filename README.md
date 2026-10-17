@@ -44,6 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-10-18 | [Tesla T4 4 枚で GLM-5.3-Flash UD-IQ3_XXS を llama.cpp（全エキスパート CPU）と ProjectMaya で比較](report/2026-10-18_011545_comparing_llamacpp_cpu_expert_offload_and_project_maya_on_glm_5.3_flash_ud_iq3_xxs.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | GLM-5.3-Flash UD-IQ3_XXS（llama.cpp -cmoe / ProjectMaya、16k/32k） |
 | 2026-10-18 | [Tesla T4 4 枚で GLM-4.7-Flash Q6_K を 128k コンテキストまで計測](report/2026-10-18_005555_profiling_glm_4.7_flash_q6_k_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | GLM-4.7-Flash Q6_K（128k） |
 | 2026-10-17 | [Tesla T4 4 枚で Nemotron 3.5 Bolt 74B-A9B の IQ2_XXS と Q4_K_M を 128k コンテキストまで比較](report/2026-10-17_225649_comparing_iq2_xxs_and_q4_k_m_of_nemotron_3.5_bolt_74b_a9b_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Nemotron 3.5 Bolt 74B-A9B IQ2_XXS / Q4_K_M（128k） |
 | 2026-10-17 | [Tesla T4 4 枚で Qwen3.8-Flash-Next の AD-3.84bpw-IQ4_XS-M64 を 32k コンテキストで計測](report/2026-10-17_222953_profiling_qwen3.8_flash_next_ad_3.84bpw_iq4_xs_m64_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Qwen3.8-Flash-Next AD-3.84bpw-IQ4_XS-M64（32k、n-cpu-moe 4） |
