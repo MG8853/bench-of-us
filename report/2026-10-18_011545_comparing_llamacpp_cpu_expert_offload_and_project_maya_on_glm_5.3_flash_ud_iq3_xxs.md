@@ -35,11 +35,11 @@ llama.cpp は `-cmoe`（全 MoE エキスパートを CPU）で 16k コンテキ
 | 項目 | llama.cpp | ProjectMaya |
 |------|------|------|
 | ツール | llama-split-bench 7af72d4 | `./maya.sh --bench`（ProjectMaya 標準ベンチ） |
-| モデル | `unsloth/GLM-5.3-Flash-GGUF` の UD-IQ3_XXS（4 シャード計 120,367,571,840 バイト = 112.1 GiB）。`glm5-next`、46 ブロック、エキスパート 288 / 使用 8、コンテキスト長 1,048,576 | 同じ UD-IQ3_XXS の GGUF を `--gguf-dir` で読み込み、ProjectMaya の pack（索引）を作成して使用。MTP / NextN 層は pack 時に除外（ランナーが MTP を未対応のため） |
+| モデル | `unsloth/GLM-5.3-Flash-GGUF` の UD-IQ3_XXS（4 シャード計 120,367,571,840 バイト = 112.1 GiB）。`glm5-next`、46 ブロック、エキスパート 288 / 使用 8、コンテキスト長 1,048,576 | 同じ UD-IQ3_XXS の GGUF を `--gguf-dir` で読み込み、ProjectMaya の pack（索引）を作成して使用。エンジンログでは NextN（MTP）ブロックがロードされ、投機的デコードが有効 |
 | 測定モード | profile（CUDA0〜CUDA3 の 4 枚、layer 分割）。`-cmoe` で全 MoE エキスパートを CPU に配置 | 4 GPU（0,1,2,3）の layer 分割。エキスパートは VRAM / RAM / SSD の階層に自動配置（`--expert-cache auto`） |
 | ctx / stages | 16384 / 0,8000,16000、生成 256 トークン / 段 | 32768、decode は 256 トークン × 3 問、prefill は 2048 / 8192 トークン |
 | KV キャッシュ | q8_0 / q8_0 | エンジン既定（KV streaming on、32k で 0.12〜0.20 GB / GPU） |
-| 投機的デコード | なし（`SPEC_ARGS=""`） | なし（pack 時に MTP 層を除外） |
+| 投機的デコード | なし（`SPEC_ARGS=""`） | **MTP（NextN）を使用**（標準ベンチのエンジンログで 824 ドラフト中 88.7% 採択） |
 | その他 | テキストのみ、`-fa on`、`-ngl all`、`-t 16`、`--parallel 1`、`--jinja`、`--cache-ram 8192 --cache-idle-slots`、`--no-real`（実プロンプト補正なし）、PORT 18081 | テキストのみ（`--no-vision`）、greedy・thinking off、`--prefill auto`、`--kv-streaming on`、RAM 232 GB |
 
 ### 結果（llama.cpp `-cmoe`、16k）
@@ -80,13 +80,14 @@ ProjectMaya の標準ベンチは、同じ 3 問を greedy・thinking off で 25
 | prefill 8k | 34.9 t/s | 222 t/s |
 | VRAM / 枚 | 2.1〜3.6 GB | 14.4 GB |
 | コンテキスト | 16k | 32k |
+| 投機的デコード | なし | MTP（88.7% 採択） |
 
 ### 所感
 
 - 同じ UD-IQ3_XXS の GGUF を使っても、エキスパートの置き方で速度が大きく変わります。llama.cpp の `-cmoe` は全エキスパートを CPU に置くため、VRAM は 2〜3.6 GB / 枚しか使いませんが、decode 4.95 t/s・prefill 34.9 t/s（8k）にとどまりました。ProjectMaya は各 GPU に約 11 GB のエキスパートプールを持ち、ルーティングされたエキスパートの約 74% を VRAM から供給するため、decode 22.8 t/s・prefill 222 t/s（8k）と 4.6〜6.4 倍速い結果です。
 - ProjectMaya は 232 GB の RAM をエキスパートの第 2 階層として使い、SSD からの読み出しはウォームアップ後 0.00 回 / トークンでした。VRAM に載らないエキスパートのうち毎トークン約 9〜11 個を RAM から取得し、CPU レーンで一部を計算しています。ディスクに落ちない構成にできることが、この速度の鍵です。
 - llama.cpp 側は `-cmoe` という粗い設定での比較です。`--n-cpu-moe N` は「最初の N 層」のエキスパートを CPU に置くため、4 枚の layer 分割では後半の GPU にエキスパートが残って VRAM が足りず、部分オフロードの調整が難しいモデルでした。llama.cpp でより良い配置を探す余地はありますが、少なくとも「全エキスパート CPU」のベースラインとしてはこの値です。
-- ProjectMaya は pack 作成時に MTP / NextN 層を除外しているため、両エンジンとも投機的デコードなしの比較です。MTP を使えるようになれば ProjectMaya の decode はさらに伸びる可能性があります。
+- llama.cpp は投機的デコードなし、ProjectMaya は MTP（NextN）を使っています。ProjectMaya の decode 22.8 t/s は、標準ベンチのエンジンログで 824 ドラフト中 88.7% が採択された投機的デコードを含む値です。したがって llama.cpp の 4.95 t/s との差には、エキスパート配置だけでなく投機的デコードの有無も含まれます。エンジン単体の非投機デコード比較ではない点に注意してください。
 - コンテキスト長は llama.cpp 16k、ProjectMaya 32k と異なります。短いコンテキストの decode と 2k / 8k の prefill は近い条件で比較できますが、16k を超える領域は ProjectMaya のみの計測です。
 - ProjectMaya のセットアップは、エンジンのコンパイル、pack の作成、モデルのロードを含めてこの環境で約 30 分でした。2 回目以降は `./maya.sh` で同じ設定を再開できます。
 - 321B モデルを 4×T4（60 GB VRAM）で動かすには、何らかの階層化が必須です。ProjectMaya の VRAM / RAM 階層は、llama.cpp の全 CPU オフロードよりはるかに実用的でした。
