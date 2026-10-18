@@ -1,13 +1,13 @@
-# Tesla T4 4 枚で Ornith 1.5 35B A3B Uncensored を 256k/512k/1M で検証
+# Tesla T4 4 枚で Ornith 1.5 35B A3B Uncensored を 256k/512k で計測し 1M のロードを確認
 
 - **作成者**: MG8853
 - **作成日**: 2026-10-18
 
 ## 概要
 
-HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[0xKitkat/Ornith-1.5-35B-A3B-Uncensored-GGUF](https://huggingface.co/0xKitkat/Ornith-1.5-35B-A3B-Uncensored-GGUF) の Q4_K_M（20.22 GiB）を tensor 分割・KV q8_0・純正 MTP（n-max 2）で 32k / 256k / 512k / 1M まで計測しました。ネイティブの 262,144 を超える範囲は YaRN factor 4.0 で拡張しています。
+HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[0xKitkat/Ornith-1.5-35B-A3B-Uncensored-GGUF](https://huggingface.co/0xKitkat/Ornith-1.5-35B-A3B-Uncensored-GGUF) の Q4_K_M（20.22 GiB）を tensor 分割・KV q8_0・純正 MTP（n-max 2）で 32k / 256k / 512k まで計測し、1M はコンテキストの確保と短い生成のみ確認しました。ネイティブの 262,144 を超える範囲は YaRN factor 4.0 で拡張しています。
 
-256k で prefill 495.7 t/s / decode 30.0 t/s、512k で 211.1 / 18.7 t/s でした。1M は VRAM 12.3〜13.6 GiB / 枚でロードできましたが、速度は未取得です（時間の都合で打ち切り）。
+256k で prefill 495.7 t/s / decode 30.0 t/s、512k で 211.1 / 18.7 t/s でした。1M は VRAM 12.0〜13.3 GiB / 枚でロードできましたが、prefill/decode は未取得です（時間の都合で打ち切り）。
 
 コーディング評価（HumanEval 164 問、chat 形式、temperature 0）は **145/164 = 88.4%** でした。
 
@@ -56,6 +56,8 @@ HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[0xKitkat/Ornith-
 | 532k | 211.1 | 18.7 | 0.518 |
 | 1M | 未取得 | 未取得 | 未取得 |
 
+265k 段の実効 depth は 265,242 で、モデルのネイティブ上限 262,144 を 3,098 トークン超えています（YaRN factor 4.0 適用）。
+
 ![結果](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/depth-curve-ja.png)
 
 ### コーディング評価（HumanEval）
@@ -80,19 +82,21 @@ HumanEval の全 164 問を、chat 形式（system で「関数を完成させ�
 
 ## 所感
 
-- YaRN factor 4.0 を全ステージに適用しているため、ネイティブ 262k 以内の 32k / 265k でもベース Ornith の測定（YaRN なし）とは条件が異なります。切り分けのため、ベース Ornith に同じ YaRN 4.0 を適用した対照実験を 32k で行いました。
-  - ベース Ornith、YaRN なし: 32k で prefill 1082.2 / decode 89.5 t/s、採択率 0.906
-  - ベース Ornith、YaRN 4.0: 32k で prefill 1140.1 / decode 89.0 t/s、採択率 0.857
-  - Ornith Uncensored、YaRN 4.0: 32k で prefill 1355.6 / decode 58.7 t/s、採択率 0.478
-- この比較から、採択率の低下（0.906 → 0.478）のうち YaRN の寄与は約 0.05 で、残りの約 0.38 は uncensored の重み（abliteration）によるものです。MTP ヘッド自体はコピーされていても、ターゲットの隠れ状態が変わったためドラフトの当たりが悪くなったと考えられます（未検証）。decode は 32k で 89.0 → 58.7 t/s（-34%）です。
-- 256k で prefill 495.7 / decode 30.0 t/s、512k で 211.1 / 18.7 t/s です。1M は VRAM 12.3〜13.6 GiB / 枚でロードでき、短い生成は 22.6 t/s でしたが、1M 深さの prefill/decode は時間の都合で未取得です（ベース Ornith の 514k では prefill 296.2 / decode 24.5 t/s）。
-- HumanEval は 145/164 = 88.4% で、ベース Ornith-1.5 の 147/164 = 89.6% とほぼ同等です。abliteration によるコーディング能力の低下は、この 164 問では 2 問（1.2 ポイント）にとどまりました。一方で投機デコードの効率は大きく落ちており、速度目的で uncensored 版を選ぶ価値はありません。
+- YaRN factor 4.0 を全ステージに適用しているため、32k（ネイティブ上限内）でも 265k（ネイティブ上限を 3,098 トークン超過）でも、ベース Ornith の測定（YaRN なし）とは条件が異なります。切り分けのため、ベース Ornith に同じ YaRN 4.0 を適用した対照実験を 32k で行いました。
+  - ベース Ornith、YaRN なし: 32k で prefill 1082.2 / decode 89.5 t/s、採択率 0.906（`reference-stock-mtp-262k/`、生成 1,000 トークン）
+  - ベース Ornith、YaRN 4.0: 32k で prefill 1140.1 / decode 89.0 t/s、採択率 0.857（生成 1,000 トークン）
+  - Ornith Uncensored、YaRN 4.0: 32k で prefill 1355.6 / decode 58.7 t/s、採択率 0.478（生成 200 トークン）
+- 3 群は生成トークン数が揃っていない（ベースは 1,000、uncensored は 200）ため、採択率の低下（0.906 → 0.478）を YaRN と abliteration に定量的に分離することはできません。低下の大半は uncensored の重み（abliteration）に由来する可能性がありますが、これは仮説です。MTP ヘッド自体はコピーされていても、ターゲットの隠れ状態が変わればドラフトの当たりが悪くなる可能性があります（未検証）。decode は 32k で 89.0 → 58.7 t/s（-34%）ですが、こちらも生成長の違いを含みます。
+- 256k で prefill 495.7 / decode 30.0 t/s、512k で 211.1 / 18.7 t/s です。1M は VRAM 12.0〜13.3 GiB / 枚でロードでき、短い生成は 22.6 t/s でしたが、1M 深さの prefill/decode は時間の都合で未取得です（ベース Ornith の 514k では prefill 296.2 / decode 24.5 t/s）。
+- HumanEval は 145/164 = 88.4% で、ベース Ornith-1.5 の 147/164 = 89.6% とほぼ同等です。abliteration によるコーディング能力の低下は、この 164 問では 2 問（1.2 ポイント）にとどまりました。一方、この条件では投機デコードの採択率が低く、速度目的で uncensored 版を選ぶ利点はありません（YaRN と生成長の違いを含むため、速度差の要因は分離できません）。
 
 ## 添付
 
 - [depth-curve-ja.png](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/depth-curve-ja.png)（results-tensor.json から作成。1M ステージ中断のため標準の split-bench 図はありません）
 - [results-tensor.json](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/results-tensor.json)
+- [run-info.json](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/run-info.json)（1M 段を手動停止して実行を終えたため、ハーネスが run-info を書き出す前に終了。argv・results・ログと同一バイナリの情報から再構成し、`note` に明記）
 - [argv-tensor.txt](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/argv-tensor.txt)
 - [ornith-unc-humanEval.json](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/ornith-unc-humanEval.json)
 - [1m-load-check.txt](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/1m-load-check.txt)
+- 対照実験（ベース Ornith、YaRN なし、32k）: [results-tensor.json](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/reference-stock-mtp-262k/results-tensor.json) / [run-info.json](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/reference-stock-mtp-262k/run-info.json) / [argv-tensor.txt](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/reference-stock-mtp-262k/argv-tensor.txt)
 - 対照実験（ベース Ornith + YaRN 4.0、32k）: [split-bench-ja.png](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/control-base-yarn4-32k/split-bench-ja.png) / [results-tensor.json](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/control-base-yarn4-32k/results-tensor.json) / [results-real.json](attachment/2026-10-18_170305_validating_ornith_1.5_35b_a3b_uncensored_at_256k_512k_1m_on_4x_tesla_t4/control-base-yarn4-32k/results-real.json)
