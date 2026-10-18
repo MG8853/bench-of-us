@@ -56,6 +56,8 @@ HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[dealignai/Nemotr
 | 532k | 141.7 | 26.2 | 0.901 |
 | 1M | 未取得 | 未取得 | 未取得 |
 
+![結果](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/depth-curve-ja.png)
+
 1M のラダーは進捗 0.72・経過 7,200 秒でタイムアウトしました。532k の prefill 141.7 t/s から単純に外挿すると 1M の prefill には約 2〜3 時間かかり、ハーネスの 1 リクエスト 7,200 秒の上限を超えます。1M のロード自体は成功しており、VRAM は上記のとおりです。
 
 VRAM は 1M コンテキスト確保時に CUDA0 / CUDA1 / CUDA2 / CUDA3 の順に 12,487 / 11,357 / 12,501 / 14,549 MiB でした。層分割のため最後の GPU が最も多く、T4 の 15,360 MiB に対する余裕は約 0.8 GiB です。
