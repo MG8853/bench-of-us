@@ -7,7 +7,7 @@
 
 HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[0xKitkat/Ornith-1.5-35B-A3B-Uncensored-GGUF](https://huggingface.co/0xKitkat/Ornith-1.5-35B-A3B-Uncensored-GGUF) の Q4_K_M（20.22 GiB）を tensor 分割・KV q8_0・純正 MTP（n-max 2）で 32k / 256k / 512k / 1M まで計測しました。ネイティブの 262,144 を超える範囲は YaRN factor 4.0 で拡張しています。
 
-256k で prefill 495.7 t/s / decode 30.0 t/s、512k で 211.1 / 18.7 t/s、1M で 未取得 / 未取得 t/s でした。1M は VRAM 12.3〜13.6 GiB / 枚でロードできています。
+256k で prefill 495.7 t/s / decode 30.0 t/s、512k で 211.1 / 18.7 t/s でした。1M は VRAM 12.3〜13.6 GiB / 枚でロードできましたが、速度は未取得です（時間の都合で打ち切り）。
 
 コーディング評価（HumanEval 164 問、chat 形式、temperature 0）は **145/164 = 88.4%** でした。
 
