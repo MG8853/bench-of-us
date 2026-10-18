@@ -7,7 +7,7 @@
 
 HPE ProLiant DL380 Gen10 に Tesla T4 × 4（15 GB / 枚）を載せた構成で、NVIDIA Nemotron 3.5 Super VL 120B-A12B（総 120B / アクティブ 12B、アーキテクチャ `nemotron_h_moe`、89 ブロック、エキスパート 512 / 使用 22）の Unsloth UD-IQ2_XXS（47.6 GiB）と UD-IQ2_M（52.0 GiB）を、CUDA0〜CUDA3 の layer 分割で 64k コンテキストまで計測しました。テキスト入力のみ（mmproj は読み込んでいません）で、この GGUF に MTP ヘッドがないため投機的デコードは使っていません。
 64k で IQ2_XXS は prefill 440.0 t/s / decode 9.33 t/s、IQ2_M は prefill 279.5 t/s / decode 9.46 t/s でした。decode は両量子化でほぼ同等、prefill は IQ2_XXS が 1.5〜1.6 倍速い結果です。
-VRAM は IQ2_XXS が最大 13.8 GiB / 枚、IQ2_M が最大 14.8 GiB / 枚で、T4 1 枚 15 GB では IQ2_M の 64k がほぼ上限です。
+VRAM は IQ2_XXS が最大 13.5 GiB / 枚、IQ2_M が最大 14.5 GiB / 枚で、T4 1 枚 15 GiB（15,360 MiB）では IQ2_M の 64k がほぼ上限です。
 
 ## ハードウェア
 
@@ -40,31 +40,22 @@ VRAM は IQ2_XXS が最大 13.8 GiB / 枚、IQ2_M が最大 14.8 GiB / 枚で、
 | ctx / stages | 65536 / 0,16000,32000,64000 |
 | KV キャッシュ | q8_0 / q8_0 |
 | 投機的デコード | なし（この GGUF は nextn / MTP 層を含まないため `SPEC_ARGS=""`） |
-| その他 | テキストのみ（`--mmproj` なし。画像入力は未計測）、`-fa on`、`-ngl all`、`-t 16`、`--parallel 1`、`--jinja`、`--cache-ram 8192 --cache-idle-slots`、生成 1000 トークン / 段、PORT 18081、`LAUNCH_PREFIX` なし |
+| その他 | テキストのみ（`--mmproj` なし。画像入力は未計測）、`-fa on`、`-ngl all`、`-t 16`、`--parallel 1`、`--jinja`、`--cache-ram 8192 --cache-idle-slots`、生成 1000 トークン / 段（64k 段はコンテキスト上限に達し 751 トークン）、PORT 18081、`LAUNCH_PREFIX` なし |
 
-### 結果（UD-IQ2_XXS、47.6 GiB）
+### 結果
 
 ![UD-IQ2_XXS の結果](attachment/2026-10-17_221656_profiling_nemotron_3.5_super_vl_120b_a12b_on_4x_tesla_t4/iq2_xxs/split-bench-ja.png)
 
-単位は t/s です。depth 0 の prefill は新規プロンプト（pp2048）の値です。ラダー初段（11 トークン）の prefill は計測上のアーティファクトなので表に載せていません。
-
-| depth | prefill | decode |
-|------:|------:|------:|
-| 0 | 274.4 | 12.05 |
-| 16k | 416.2 | 11.35 |
-| 32k | 431.0 | 10.57 |
-| 64k | 440.0 | 9.33 |
-
-### 結果（UD-IQ2_M、52.0 GiB）
-
 ![UD-IQ2_M の結果](attachment/2026-10-17_221656_profiling_nemotron_3.5_super_vl_120b_a12b_on_4x_tesla_t4/iq2_m/split-bench-ja.png)
 
-| depth | prefill | decode |
-|------:|------:|------:|
-| 0 | 238.4 | 12.28 |
-| 16k | 280.1 | 11.53 |
-| 32k | 282.4 | 10.73 |
-| 64k | 279.5 | 9.46 |
+単位は t/s です。depth 0 の prefill は新規プロンプト（pp2048）の値です。ラダー初段（11 トークン）の prefill は計測上のアーティファクトなので表に載せていません。64k 段の decode は、生成上限 1,000 トークンに対してコンテキスト上限に達したため 751 トークンでの測定です。
+
+| depth | IQ2_XXS prefill | IQ2_XXS decode | IQ2_M prefill | IQ2_M decode |
+|------:|------:|------:|------:|------:|
+| 0 | 274.4 | 12.05 | 238.4 | 12.28 |
+| 16k | 416.2 | 11.35 | 280.1 | 11.53 |
+| 32k | 431.0 | 10.57 | 282.4 | 10.73 |
+| 64k | 440.0 | 9.33 | 279.5 | 9.46 |
 
 ### 所感
 
@@ -72,7 +63,7 @@ VRAM は IQ2_XXS が最大 13.8 GiB / 枚、IQ2_M が最大 14.8 GiB / 枚で、
 - prefill は IQ2_XXS が明確に速い結果でした。32k で 431.0 対 282.4 t/s、64k で 440.0 対 279.5 t/s と、IQ2_XXS が 1.5〜1.6 倍です。IQ2_M はファイルが 4.6 GiB 大きいだけでなく、2-bit と 3-bit のテンソルが混在する構成のため、dequant と行列積のコストが増えている可能性があります。
 - 実プロンプト補正係数は IQ2_XXS が 1.019、IQ2_M が 1.019 で、どちらもほぼ 1 です。合成ラダーの decode 値がそのまま実運用の目安になります。
 - depth 0 の prefill（pp2048）よりラダーの増分 prefill のほうが速いのは、短い新規プロンプトでは重みの読み込みが支配的で、長いプロンプトではバッチ処理が効くためです。
-- VRAM は IQ2_XXS が最大 13.8 GiB / 枚、IQ2_M が最大 14.8 GiB / 枚でした。llama.cpp は起動時に `-c` 分の KV キャッシュを確保するため、IQ2_M の 64k はほぼ T4 1 枚の上限です。これより長いコンテキストを狙う場合は `--n-cpu-moe` によるエキスパートの CPU オフロードや KV キャッシュのさらなる量子化が必要になります。
+- VRAM は IQ2_XXS が最大 13.5 GiB / 枚、IQ2_M が最大 14.5 GiB / 枚でした。llama.cpp は起動時に `-c` 分の KV キャッシュを確保するため、IQ2_M の 64k はほぼ T4 1 枚の上限です。これより長いコンテキストを狙う場合は `--n-cpu-moe` によるエキスパートの CPU オフロードや KV キャッシュのさらなる量子化が必要になります。
 - GGUF メタデータ上のコンテキスト長は 1,048,576 ですが、4×T4 の VRAM では 64k までを計測しています。tensor 分割はこのモデルでは試していません。
 - このモデルは vision-language モデルですが、今回はテキスト入力のみで、mmproj（`mmproj-BF16.gguf`）は読み込んでいません。画像入力の速度は未計測です。
 
