@@ -7,7 +7,7 @@
 
 HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[dealignai/Nemotron-3.5-Lightning-30B-A3B-CRACK-GGUF](https://huggingface.co/dealignai/Nemotron-3.5-Lightning-30B-A3B-CRACK-GGUF) の Q4_K_M（25.4 GB）を層分割・KV q8_0・純正 MTP（n-max 2）で 32k / 256k / 512k / 1M まで計測しました。`nemotron_h_moe` は tensor 分割に未対応のため、層分割のみです。
 
-256k で prefill 357.5 t/s / decode 40.0 t/s、512k で prefill 141.7 t/s / decode 26.2 t/s でした。1M はネイティブでロードでき、1M の速度計測はハーネスの 7200 秒タイムアウトで完了しなかったものの、1M コンテキストのロードと短い生成（31.3 t/s）は別途確認しました。VRAM は 1M で最も大きい GPU が 14.5 GiB と、T4 の 15 GiB に対して余裕が小さい状態です。
+256k で prefill 357.5 t/s / decode 40.0 t/s、512k で prefill 141.7 t/s / decode 26.2 t/s でした。1M はネイティブでロードでき、1M の速度計測はハーネスの 7200 秒タイムアウトで完了しなかったものの、1M コンテキストのロードと短い生成（31.3 t/s）は別途確認しました。VRAM は 1M で最も大きい GPU が 14.2 GiB と、T4 の 15 GiB に対して余裕が小さい状態です。
 
 コーディング評価（HumanEval 164 問、chat 形式、temperature 0）は **143/164 = 87.2%** でした。同じハーネス・同じビルドで測った Ornith-1.5 35B A3B の 147/164 = 89.6% より 2.4 ポイント低い結果です。
 
@@ -84,7 +84,7 @@ HumanEval の全 164 問を、chat 形式（system で「関数を完成させ�
 
 ## 所感
 
-- 256k で prefill 357.5 / decode 40.0 t/s、512k で 141.7 / 26.2 t/s です。深さが倍になると prefill は約 40%、decode は約 35% 低下します。
+- 256k で prefill 357.5 / decode 40.0 t/s、512k で 141.7 / 26.2 t/s です。深さが倍になると prefill は約 60%、decode は約 35% 低下します。
 - MTP の採択率は 0.90〜0.96 と高く、長コンテキストでも投機デコードが効いています。
 - 1M はロードできますが、GPU3 の VRAM が 14,549 MiB と上限に近く、フルの 1M プロンプトを流すと prefill に 2 時間以上かかります。常用するなら 512k 以下が現実的です。
 - HumanEval は 143/164 = 87.2% で、同ハーネスの Ornith-1.5（147/164 = 89.6%）より 2.4 ポイント低い結果です。CRACK の MMLU 低下（78.3% → 74.2%、README 記載）と整合する方向ですが、HumanEval の差がモデル由来かどうかは 1 回の測定では断定できません。
@@ -94,6 +94,7 @@ HumanEval の全 164 問を、chat 形式（system で「関数を完成させ�
 
 - [depth-curve-ja.png](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/depth-curve-ja.png)（results-layer.json から作成。1M ステージ中断のため標準の split-bench 図はありません）
 - [results-layer.json](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/results-layer.json)
+- [run-info.json](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/run-info.json)（1M 段のタイムアウトでハーネスが run-info を書き出す前に終了したため、argv・results・ログと同一バイナリの情報から再構成。`note` に明記）
 - [argv-layer.txt](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/argv-layer.txt)
 - [nemotron-crack-humanEval.json](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/nemotron-crack-humanEval.json)
 - [1m-load-check.txt](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/1m-load-check.txt)
