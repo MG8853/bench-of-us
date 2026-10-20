@@ -44,6 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-10-20 | [Tesla T4 4 枚で Tess-4.5-27B Q8_0 を MTP 付きで 256k まで計測](report/2026-10-20_153835_profiling_tess_4.5_27b_q8_0_with_mtp_up_to_256k_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Tess-4.5-27B Q8_0 + MTP（32k〜258k、layer/tensor、MTP なし比較、HumanEval） |
 | 2026-10-08 | [Tesla V100-PCIE-32GB 1 枚で Qwen3.8 27B UD-Q4_K_M を 262k コンテキストまで計測](report/2026-10-08_105734_profiling_qwen3.8_27b_ud_q4_k_m_up_to_262k_on_tesla_v100_pcie_32gb.md) | sh1ma | Supermicro SYS-1019GP-TT | Tesla V100-PCIE-32GB × 1 | Qwen3.8 27B UD-Q4_K_M（262k、profile） |
 | 2026-10-07 | [V100 2枚で Qwen3.8 27B の Layer・Tensor分割と MTP・DFlash2 を比較](report/2026-10-07_073209_comparing_layer_and_tensor_mtp_and_dflash2_on_2x_v100.md) | pakutoma | ASRock B550M Pro RS | Tesla V100-SXM2-16GB × 2 | Qwen3.8 27B UD-Q4_K_M |
 | 2026-10-05 | [Tesla V100 16GB ×2・NVLink・各150W制限でQwen3.8 27Bのsplit-modeを比較](report/2026-10-05_203331_comparing_qwen3_8_27b_split_modes_on_2x_v100_nvlink_at_150w.md) | KotaroFurukawa | Supermicro X11SPi-TF | Tesla V100-SXM2-16GB × 2（NVLink・各150W） | Qwen3.8-27B Q4_K_M（64k、layer/tensor） |
