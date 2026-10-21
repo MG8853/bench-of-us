@@ -51,6 +51,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-10-21 | [Tesla T4 4 枚で Ternary Bonsai 2 27B（三値 2bit）を 256k コンテキストまで計測](report/2026-10-21_090037_profiling_ternary_bonsai_2_27b_up_to_256k_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Ternary Bonsai 2 27B PQ2_0 / PTQ1_0（32k〜258k、layer、1/2/4 枚比較、MTP ヘッド） |
 | 2026-10-20 | [Tesla T4 4 枚で Tess-4.5-27B Q8_0 を MTP 付きで 256k まで計測](report/2026-10-20_153835_profiling_tess_4.5_27b_q8_0_with_mtp_up_to_256k_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Tess-4.5-27B Q8_0 + MTP（32k〜258k、layer/tensor、MTP なし比較、HumanEval） |
 | 2026-10-18 | [Tesla T4 4 枚で Ornith 1.5 35B A3B の MTP ヘッド交換と 512k/1M コンテキストを検証](report/2026-10-18_091752_validating_mtp_head_swap_and_512k_1m_context_of_ornith_1.5_35b_a3b_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Ornith 1.5 35B A3B Q4_K_M（純正/外部 MTP、32k/254k/512k、1M ロード確認） |
 | 2026-10-18 | [Tesla T4 4 枚で Qwen3.8 27B Uncensored の 256k/512k と 1M の可否を検証](report/2026-10-18_170446_validating_qwen3.8_27b_uncensored_at_256k_512k_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Qwen3.8 27B Uncensored Q5_K_M（32k〜512k、1M は VRAM 不足、HumanEval） |
