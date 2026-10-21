@@ -174,7 +174,7 @@ MTP なしの PTQ1_0（同じ 4 枚・262k・KV f16）との比較です。
 | 2 枚 + MTP（n-max 1） | 43.77 t/s | 0.828 |
 | 4 枚 + MTP（n-max 2） | 29.41 t/s | 0.697 |
 
-**n-max 2 の方が速く**、4 枚は同じ条件でも 2 枚の 64% まで落ちます。この手動計測は 2 回実施し、decode は 3% 以内で一致しました。
+**n-max 2 の方が速く**、4 枚は同じ条件でも 2 枚の 64% まで落ちます。この手動計測は 2 回実施し、decode の差は最大 4% 以内（4 枚条件で約 3.7%、2 枚条件で 0.3〜1.2%）でした。
 
 262k を 2 枚で確保しようとした腕は、32k 段の prefill 時に CUDA1 の計算バッファ（約 1.2 GB）を確保できず `cudaMalloc failed: out of memory` で中断しました（ロード直後の時点で GPU0 12,407 MiB / GPU1 14,899 MiB を使用）。f16 KV の 262k は 2 枚では計算バッファの余裕が残らないため、**256k で MTP を使うなら 4 枚か、KV の量子化が必要**です。なお、この中断した腕でも depth 0 の decode は 52.90 t/s（採択率 0.895）と記録されています。ロード直後の VRAM 使用量と OOM の実ログは [vram-at-load.txt](attachment/2026-10-21_090037_profiling_ternary_bonsai_2_27b_up_to_256k_on_4x_tesla_t4/vram-at-load.txt)、中断時点の段 0 の生データは [mtp-2gpu-262k-stage0.json](attachment/2026-10-21_090037_profiling_ternary_bonsai_2_27b_up_to_256k_on_4x_tesla_t4/mtp-2gpu-262k-stage0.json) にあります。
 
