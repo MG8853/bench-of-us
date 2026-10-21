@@ -51,6 +51,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
+| 2026-10-17 | [Tesla T4 4 枚で Qwen3.8-Flash-Next の AD-3.84bpw-IQ4_XS-M64 を 32k コンテキストで計測](report/2026-10-17_222953_profiling_qwen3.8_flash_next_ad_3.84bpw_iq4_xs_m64_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Qwen3.8-Flash-Next AD-3.84bpw-IQ4_XS-M64（32k、n-cpu-moe 4） |
 | 2026-10-17 | [Tesla T4 4 枚で Nemotron 3.5 Super VL 120B-A12B の UD-IQ2_XXS と UD-IQ2_M を 64k コンテキストまで計測](report/2026-10-17_221656_profiling_nemotron_3.5_super_vl_120b_a12b_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Nemotron 3.5 Super VL 120B-A12B UD-IQ2_XXS / UD-IQ2_M（64k） |
 | 2026-10-11 | [Apple M1 Max 64GB で Qwen3.8 27B UD-Q4_K_M の MTP 投機的デコードを 64k まで比較](report/2026-10-11_125828_comparing_mtp_speculative_decoding_of_qwen3.8_27b_up_to_64k_on_apple_m1_max.md) | Kenya Nara (@penta2himajin) | Apple MacBook Pro 18,4 | Apple M1 Max × 1 | Qwen3.8 27B UD-Q4_K_M（64k、MTP あり/なし） |
 | 2026-10-08 | [Tesla V100-PCIE-32GB 1 枚で Qwen3.8 27B UD-Q4_K_M を 262k コンテキストまで計測](report/2026-10-08_105734_profiling_qwen3.8_27b_ud_q4_k_m_up_to_262k_on_tesla_v100_pcie_32gb.md) | sh1ma | Supermicro SYS-1019GP-TT | Tesla V100-PCIE-32GB × 1 | Qwen3.8 27B UD-Q4_K_M（262k、profile） |
