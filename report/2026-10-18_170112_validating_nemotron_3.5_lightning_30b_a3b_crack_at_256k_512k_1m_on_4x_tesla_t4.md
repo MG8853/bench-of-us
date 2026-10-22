@@ -1,13 +1,13 @@
-# Tesla T4 4 枚で Nemotron 3.5 Lightning 30B A3B CRACK を 256k/512k/1M で検証
+# Tesla T4 4 枚で Nemotron 3.5 Lightning 30B A3B CRACK を 265k/532k（公称 256k/512k）で検証し 1M のロードを確認
 
 - **作成者**: MG8853
 - **作成日**: 2026-10-18
 
 ## 概要
 
-HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[dealignai/Nemotron-3.5-Lightning-30B-A3B-CRACK-GGUF](https://huggingface.co/dealignai/Nemotron-3.5-Lightning-30B-A3B-CRACK-GGUF) の Q4_K_M（25.4 GB）を層分割・KV q8_0・純正 MTP（n-max 2）で 32k / 256k / 512k / 1M まで計測しました。`nemotron_h_moe` は tensor 分割に未対応のため、層分割のみです。
+HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[dealignai/Nemotron-3.5-Lightning-30B-A3B-CRACK-GGUF](https://huggingface.co/dealignai/Nemotron-3.5-Lightning-30B-A3B-CRACK-GGUF) の Q4_K_M（25.4 GB）を層分割・KV q8_0・純正 MTP（n-max 2）で 32k / 265k / 532k まで計測し、1M はコンテキストのロードと短い生成のみ確認しました。深さは実測の effective_depth で表記し、公称の 256k / 512k とはプロンプトのトークン数が異なります。`nemotron_h_moe` は tensor 分割に未対応のため、層分割のみです。
 
-256k で prefill 357.5 t/s / decode 40.0 t/s、512k で prefill 141.7 t/s / decode 26.2 t/s でした。1M はネイティブでロードでき、1M の速度計測はハーネスの 7200 秒タイムアウトで完了しなかったものの、1M コンテキストのロードと短い生成（31.3 t/s）は別途確認しました。VRAM は 1M で最も大きい GPU が 14.2 GiB と、T4 の 15 GiB に対して余裕が小さい状態です。
+265k（公称 256k）で prefill 357.5 t/s / decode 40.0 t/s、532k（公称 512k）で prefill 141.7 t/s / decode 26.2 t/s でした。1M はネイティブでロードでき、1M の速度計測はハーネスの 7200 秒タイムアウトで完了しなかったものの、1M コンテキストのロードと短い生成（31.3 t/s）は別途確認しました。VRAM は 1M で最も大きい GPU が 14.2 GiB と、T4 の 15 GiB に対して余裕が小さい状態です。
 
 コーディング評価（HumanEval 164 問、chat 形式、temperature 0）は **143/164 = 87.2%** でした。同じハーネス・同じビルドで測った Ornith-1.5 35B A3B の 147/164 = 89.6% より 2.4 ポイント低い結果です。
 
@@ -47,7 +47,9 @@ HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[dealignai/Nemotr
 
 ### 結果
 
-単位は t/s です。depth 0 の prefill は新規プロンプト（pp2048）の値です。ラダー初段（11 トークン）の prefill は計測上のアーティファクトなので表に載せていません。
+単位は t/s です。ラダー初段（11 トークン）の prefill は計測上のアーティファクトなので表と図から除外しています。pp0（新規プロンプト）は取得していないため depth 0 の行はありません。
+
+32k / 265k / 532k は実測の effective_depth（32,093 / 265,242 / 532,129 トークン）で、公称の 32k / 256k / 512k よりプロンプトが長くなっています。
 
 | depth | prefill | decode | MTP 採択率 |
 |------:|------:|------:|------:|
@@ -56,11 +58,13 @@ HPE ProLiant DL380 Gen10 + Tesla T4 × 4（15 GB / 枚）で、[dealignai/Nemotr
 | 532k | 141.7 | 26.2 | 0.901 |
 | 1M | 未取得 | 未取得 | 未取得 |
 
-![結果](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/depth-curve-ja.png)
+![結果（ja）](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/split-bench-ja.png)
+
+![結果（en）](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/split-bench-en.png)
 
 1M のラダーは進捗 0.72・経過 7,200 秒でタイムアウトしました。532k の prefill 141.7 t/s から単純に外挿すると 1M の prefill には約 2〜3 時間かかり、ハーネスの 1 リクエスト 7,200 秒の上限を超えます。1M のロード自体は成功しており、VRAM は上記のとおりです。
 
-VRAM は 1M コンテキスト確保時に CUDA0 / CUDA1 / CUDA2 / CUDA3 の順に 12,487 / 11,357 / 12,501 / 14,549 MiB でした。層分割のため最後の GPU が最も多く、T4 の 15,360 MiB に対する余裕は約 0.8 GiB です。
+VRAM は 1M コンテキスト確保時（`1m-load-check.txt`）で CUDA0 / CUDA1 / CUDA2 / CUDA3 の順に 12,459 / 11,329 / 12,473 / 14,517 MiB でした。T4 の 15,360 MiB に対する余裕は約 0.8 GiB です。ラダーが到達した 532k 段の実行中は `results-layer.json` の `gpu_after` で 12,487 / 11,357 / 12,501 / 14,549 MiB でしたが、これは 1M のロード時の値ではありません。
 
 ### コーディング評価（HumanEval）
 
@@ -70,29 +74,29 @@ HumanEval の全 164 問を、chat 形式（system で「関数を完成させ�
 |------|------|
 | pass@1 | **143/164 = 87.2%** |
 | 1 問あたりの平均時間 | 3.87 秒 |
-| 参考: Ornith-1.5 35B A3B（同一ハーネス） | 147/164 = 89.6% |
+| 参考: Ornith-1.5 35B A3B（同一ハーネス、PR #65） | 147/164 = 89.6% |
 
 
 同一ハーネス・同一ビルドでの横断比較（HumanEval 164 問、chat 形式、temperature 0）:
 
-| モデル | pass@1 |
-|--------|------:|
-| Qwen3.8 27B Uncensored Q5_K_M | 156/164 = 95.1% |
-| 参考: Ornith-1.5 35B A3B（ベース） | 147/164 = 89.6% |
-| Ornith 1.5 35B A3B Uncensored Q4_K_M | 145/164 = 88.4% |
-| Nemotron 3.5 Lightning 30B A3B CRACK Q4_K_M | 143/164 = 87.2% |
+| モデル | pass@1 | 出典 |
+|--------|------:|------|
+| Qwen3.8 27B Uncensored Q5_K_M | 156/164 = 95.1% | PR #64 |
+| 参考: Ornith-1.5 35B A3B（ベース） | 147/164 = 89.6% | PR #65 |
+| Ornith 1.5 35B A3B Uncensored Q4_K_M | 145/164 = 88.4% | PR #63 |
+| Nemotron 3.5 Lightning 30B A3B CRACK Q4_K_M | 143/164 = 87.2% | 本レポート |
 
 ## 所感
 
-- 256k で prefill 357.5 / decode 40.0 t/s、512k で 141.7 / 26.2 t/s です。深さが倍になると prefill は約 60%、decode は約 35% 低下します。
+- 265k（公称 256k）で prefill 357.5 / decode 40.0 t/s、532k（公称 512k）で 141.7 / 26.2 t/s です。深さが約 2 倍になると prefill は約 60%、decode は約 35% 低下します。
 - MTP の採択率は 0.90〜0.96 と高く、長コンテキストでも投機デコードが効いています。
-- 1M はロードできますが、GPU3 の VRAM が 14,549 MiB と上限に近く、フルの 1M プロンプトを流すと prefill に 2 時間以上かかります。常用するなら 512k 以下が現実的です。
+- 1M はロードできますが、GPU3 の VRAM が 14,517 MiB と上限に近く、フルの 1M プロンプトを流すと prefill に 2 時間以上かかると外挿されます。常用するなら 532k（公称 512k）以下が現実的です。
 - HumanEval は 143/164 = 87.2% で、同ハーネスの Ornith-1.5（147/164 = 89.6%）より 2.4 ポイント低い結果です。CRACK の MMLU 低下（78.3% → 74.2%、README 記載）と整合する方向ですが、HumanEval の差がモデル由来かどうかは 1 回の測定では断定できません。
 - このモデルは reasoning（thinking）が既定で ON です。HumanEval では `enable_thinking: false` を指定しましたが、テンプレートが対応していない場合は思考が入り、1 問あたりの時間が増えます（平均 3.87 秒）。
 
 ## 添付
 
-- [depth-curve-ja.png](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/depth-curve-ja.png)（results-layer.json から作成。1M ステージ中断のため標準の split-bench 図はありません）
+- [split-bench-ja.png](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/split-bench-ja.png) / [split-bench-en.png](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/split-bench-en.png)（results-layer.json の 32k / 265k / 532k からハーネス標準の `plot_bench.py` で作成。1M ステージ中断のため 1M は含まない）
 - [results-layer.json](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/results-layer.json)
 - [run-info.json](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/run-info.json)（1M 段のタイムアウトでハーネスが run-info を書き出す前に終了したため、argv・results・ログと同一バイナリの情報から再構成。`note` に明記）
 - [argv-layer.txt](attachment/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4/argv-layer.txt)

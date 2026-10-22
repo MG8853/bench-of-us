@@ -44,7 +44,7 @@ Claude Code、Codex、OpenCodeなどのコーディングエージェントを�
 
 | 日付 | タイトル | 作成者 | コンピュータ / マザーボード | GPU | ベンチ |
 |------|----------|--------|-----------------------------|-----|--------|
-| 2026-10-18 | [Tesla T4 4 枚で Nemotron 3.5 Lightning 30B A3B CRACK を 256k/512k/1M で検証](report/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Nemotron 3.5 Lightning 30B A3B CRACK Q4_K_M（32k〜512k、1M ロード、HumanEval） |
+| 2026-10-18 | [Tesla T4 4 枚で Nemotron 3.5 Lightning 30B A3B CRACK を 265k/532k（公称 256k/512k）で検証し 1M のロードを確認](report/2026-10-18_170112_validating_nemotron_3.5_lightning_30b_a3b_crack_at_256k_512k_1m_on_4x_tesla_t4.md) | MG8853 | HPE ProLiant DL380 Gen10 | Tesla T4 × 4 | Nemotron 3.5 Lightning 30B A3B CRACK Q4_K_M（32k〜532k、1M ロード、HumanEval） |
 | 2026-10-08 | [Tesla V100-PCIE-32GB 1 枚で Qwen3.8 27B UD-Q4_K_M を 262k コンテキストまで計測](report/2026-10-08_105734_profiling_qwen3.8_27b_ud_q4_k_m_up_to_262k_on_tesla_v100_pcie_32gb.md) | sh1ma | Supermicro SYS-1019GP-TT | Tesla V100-PCIE-32GB × 1 | Qwen3.8 27B UD-Q4_K_M（262k、profile） |
 | 2026-10-07 | [V100 2枚で Qwen3.8 27B の Layer・Tensor分割と MTP・DFlash2 を比較](report/2026-10-07_073209_comparing_layer_and_tensor_mtp_and_dflash2_on_2x_v100.md) | pakutoma | ASRock B550M Pro RS | Tesla V100-SXM2-16GB × 2 | Qwen3.8 27B UD-Q4_K_M |
 | 2026-10-05 | [Tesla V100 16GB ×2・NVLink・各150W制限でQwen3.8 27Bのsplit-modeを比較](report/2026-10-05_203331_comparing_qwen3_8_27b_split_modes_on_2x_v100_nvlink_at_150w.md) | KotaroFurukawa | Supermicro X11SPi-TF | Tesla V100-SXM2-16GB × 2（NVLink・各150W） | Qwen3.8-27B Q4_K_M（64k、layer/tensor） |
