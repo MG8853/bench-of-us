@@ -43,29 +43,20 @@ Q4_K_M は既定の layer 分割では 64k でも計算バッファの VRAM が�
 | その他 | テキストのみ（`--mmproj` なし。画像入力は未計測）、`-fa on`、`-ngl all`、`-t 16`、`--parallel 1`、`--jinja`、`--cache-ram 8192 --cache-idle-slots`、生成 1000 トークン / 段、PORT 18081、`LAUNCH_PREFIX` なし |
 | Q4_K_M の追加設定 | `-ot output.weight=CPU`（出力層のみ CPU）。この設定がないと 128k でも 64k でも CUDA3 の計算バッファ確保に失敗しました |
 
-### 結果（IQ2_XXS、20.5 GiB、128k）
+### 結果（IQ2_XXS 20.5 GiB / Q4_K_M 45.0 GiB、128k）
 
 ![IQ2_XXS の結果](attachment/2026-10-17_225649_comparing_iq2_xxs_and_q4_k_m_of_nemotron_3.5_bolt_74b_a9b_on_4x_tesla_t4/iq2_xxs/split-bench-ja.png)
 
-単位は t/s です。depth 0 の prefill は新規プロンプト（pp2048）の値です。ラダー初段（11 トークン）の prefill は計測上のアーティファクトなので表に載せていません。
-
-| depth | prefill | decode |
-|------:|------:|------:|
-| 0 | 464.3 | 15.49 |
-| 32k | 792.1 | 13.35 |
-| 64k | 738.0 | 11.38 |
-| 128k | 606.6 | 8.83 |
-
-### 結果（Q4_K_M、45.0 GiB、128k、出力層 CPU）
-
 ![Q4_K_M の結果](attachment/2026-10-17_225649_comparing_iq2_xxs_and_q4_k_m_of_nemotron_3.5_bolt_74b_a9b_on_4x_tesla_t4/q4_k_m/split-bench-ja.png)
 
-| depth | prefill | decode |
-|------:|------:|------:|
-| 0 | 318.3 | 12.04 |
-| 32k | 361.6 | 10.52 |
-| 64k | 336.5 | 9.28 |
-| 128k | 272.2 | 5.87 |
+単位は t/s です。depth 0 の prefill は新規プロンプト（pp2048）の値です。ラダー初段（11 トークン）の prefill は計測上のアーティファクトなので表に載せていません。Q4_K_M は 128k の計測ですが、出力層のみ CPU（`-ot output.weight=CPU`）に置いた条件です。
+
+| depth | IQ2_XXS prefill | IQ2_XXS decode | Q4_K_M prefill | Q4_K_M decode |
+|------:|------:|------:|------:|------:|
+| 0 | 464.3 | 15.49 | 318.3 | 12.04 |
+| 32k | 792.1 | 13.35 | 361.6 | 10.52 |
+| 64k | 738.0 | 11.38 | 336.5 | 9.28 |
+| 128k | 606.6 | 8.83 | 272.2 | 5.87 |
 
 ### 所感
 
